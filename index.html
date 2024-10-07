@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiffin Service Website</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 1rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+        }
+
+        header {
+            background-color: #f4f4f4;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .slider img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+
+        .cta-buttons .btn {
+            display: inline-block;
+            margin: 1rem;
+            padding: 1rem 2rem;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        #services {
+            padding: 2rem;
+            background-color: #f9f9f9;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .card {
+            background-color: white;
+            padding: 2rem;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .add-to-cart {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #blog,
+        #success-story {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        footer .social-icons a {
+            color: white;
+            margin: 0 1rem;
+        }
+
+        .image-container {
+            background-color: yellow;
+            /* Yellow background for the image section */
+            padding: 20px;
+            /* Optional padding for better spacing */
+            text-align: center;
+            /* Center the image */
+        }
+
+        img {
+            width: 300px;
+            /* Set fixed width */
+            height: 300px;
+            /* Set fixed height */
+            object-fit: cover;
+            /* Ensure the image fits well inside the box */
+            border-radius: 10px;
+            /* Optional: Add rounded corners */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#login">Login</a></li>
+            <li><a href="#register">Register</a></li>
+            <li><a href="#cart"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header Section with Slider -->
+    <header id="home">
+        <div class="slider">
+            <div class="slides">
+                <img src="tiffin1.jpg" alt="Tiffin Service 1">
+                <img src="tiffin2.jpg" alt="Tiffin Service 2">
+                <img src="tiffin3.jpg" alt="Tiffin Service 3">
+            </div>
+            <div class="cta-buttons">
+                <a href="#services" class="btn">Order Now</a>
+                <a href="#menu" class="btn">View Menu</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Service Section with Tiffin Packages -->
+    <section id="services">
+        <h2>Our Tiffin Packages</h2>
+        <div class="cards">
+            <div class="card">
+                <h3>Normal Tiffin (₹60)</h3>
+                <p>2 Sabzi, 4 Roti, Dal, Rice</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="card">
+                <h3>Deluxe Tiffin (₹75)</h3>
+                <p>3 Sabzi, 6 Roti, Dal, Rice, Sweet</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="card">
+                <h3>Super Deluxe Tiffin (₹90)</h3>
+                <p>4 Sabzi, 8 Roti, Dal, Rice, Sweet, Salad, Drink</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section with Instagram Reels -->
+    <section id="blog">
+        <h2>Our Instagram Reels</h2>
+        <div class="instagram-reels">
+            <!-- Instagram Reel Embed Code -->
+            <iframe src="https://www.instagram.com/reel/xyz/embed" width="300" height="500" frameborder="0"
+                scrolling="no"></iframe>
+        </div>
+    </section>
+
+    <!-- Success Story Section -->
+    <section id="success-story">
+        <h2>Success Story</h2>
+        <p>Our journey began with a small tiffin service and has now grown into a thriving business. We are proud to
+            serve delicious home-cooked meals to our valued customers.</p>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 Tiffin Service | <a href="#home">Home</a> | <a href="#about">About</a> | <a
+                href="#services">Services</a> | <a href="#blog">Blog</a></p>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+        <p>Contact us: 123-456-7890 | email@example.com</p>
+    </footer>
+
+    <script>// Cart functionality
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        let cart = [];
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tiffinName = button.parentElement.querySelector('h3').innerText;
+                const tiffinPrice = tiffinName.match(/₹(\d+)/)[1];
+
+                cart.push({
+                    name: tiffinName,
+                    price: tiffinPrice
+                });
+
+                alert(tiffinName + ' has been added to the cart.');
+                console.log(cart);
+            });
+        });
+    </script>
+</body>
+
+</html>
