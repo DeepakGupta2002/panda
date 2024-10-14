@@ -142,7 +142,7 @@
             <a class="navbar-brand" href="#">
                 <div
                     style="background-color: #FFD700; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                    <img src="bhukha_panda-removebg-preview.png" alt="Bhookha Panda Logo"
+                    <img src="image/bhukha_panda-removebg-preview.png" alt="Bhookha Panda Logo"
                         style="width: 40px; height: 40px;">
                 </div>
             </a>
@@ -510,7 +510,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <!-- <script>
         document.getElementById('toggleLoginPassword').addEventListener('click', function (e) {
             const loginPasswordInput = document.getElementById('loginPassword');
             const icon = e.target;
@@ -540,7 +540,121 @@
                 icon.classList.add('fa-eye');
             }
         });
+    </script> -->
+    <script>
+        // Handle Login Form Submission
+        document.querySelector('#login').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Prevent form from submitting the default way
+
+            const loginEmail = document.getElementById('loginEmail').value;
+            const loginPassword = document.getElementById('loginPassword').value;
+
+            // Make API call using fetch
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: loginEmail,
+                        password: loginPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Handle successful login (for example, redirect or show success message)
+                    alert('Login successful');
+                    console.log(data);  // Optional: Log the response for debugging
+                } else {
+                    // Handle login errors
+                    alert(`Login failed: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Handle Register Form Submission
+        document.querySelector('#register').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Prevent form from submitting the default way
+
+            const registerName = document.getElementById('registerName').value;
+            const registerEmail = document.getElementById('registerEmail').value;
+            const registerPassword = document.getElementById('registerPassword').value;
+            const registerConfirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (registerPassword !== registerConfirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Make API call using fetch
+            try {
+                const response = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: registerName,
+                        email: registerEmail,
+                        password: registerPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Handle successful registration
+                    alert('Registration successful');
+                    console.log(data);  // Optional: Log the response for debugging
+                } else {
+                    // Handle registration errors
+                    alert(`Registration failed: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error during registration:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Password Toggle for Login
+        document.getElementById('toggleLoginPassword').addEventListener('click', function (e) {
+            const loginPasswordInput = document.getElementById('loginPassword');
+            const icon = e.target;
+
+            if (loginPasswordInput.type === 'password') {
+                loginPasswordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                loginPasswordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Password Toggle for Register
+        document.getElementById('toggleRegisterPassword').addEventListener('click', function (e) {
+            const registerPasswordInput = document.getElementById('registerPassword');
+            const icon = e.target;
+
+            if (registerPasswordInput.type === 'password') {
+                registerPasswordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                registerPasswordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
     </script>
+
 </body>
 
 </html>
