@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhookha Panda - Cloud Kitchen</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Style */
+        header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 999;
+        }
+
+        header .navbar-nav .nav-link {
+            color: white;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        header .navbar-nav .nav-link:hover {
+            color: #ff9800;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-image: url('hero-image.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-section h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-section p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero-section button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            background-color: #ff9800;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .hero-section button:hover {
+            transform: scale(1.1);
+            background-color: #f57c00;
+        }
+
+        /* Categories Section */
+        .category {
+            padding: 80px 0;
+            background-color: #fff;
+        }
+
+        .category h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .category .card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .category .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .category .card-body {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .category img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .category .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        /* Product Section */
+        .product-section {
+            padding: 80px 0;
+            background-color: #fafafa;
+        }
+
+        .product-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .product-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .product-card .card-body {
+            text-align: center;
+            padding: 25px;
+        }
+
+        .product-card .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .product-card button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .product-card button:hover {
+            background-color: #f57c00;
+            transform: scale(1.05);
+        }
+
+        /* Sticky Button */
+        .sticky-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff9800;
+            padding: 20px 30px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .sticky-btn:hover {
+            background-color: #f57c00;
+            transform: scale(1.1);
+        }
+
+        /* Footer Section */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <a class="navbar-brand" href="#">Bhookha Panda</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#menu">Menu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#about">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div>
+            <h1>Welcome to Bhookha Panda</h1>
+            <p>Your favorite food, delivered fresh from our cloud kitchen!</p>
+            <button>Explore Menu</button>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="category" id="menu">
+        <div class="container">
+            <h2>Our Delicious Categories</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="category1.jpg" class="card-img-top" alt="Pizzas">
+                        <div class="card-body">
+                            <h5 class="card-title">Pizzas</h5>
+                            <p class="card-text">Freshly made pizzas with a variety of toppings.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="category2.jpg" class="card-img-top" alt="Burgers">
+                        <div class="card-body">
+                            <h5 class="card-title">Burgers</h5>
+                            <p class="card-text">Juicy burgers with crispy fries and soft buns.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="category3.jpg" class="card-img-top" alt="Pastas">
+                        <div class="card-body">
+                            <h5 class="card-title">Pastas</h5>
+                            <p class="card-text">Delicious pastas cooked to perfection.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Section -->
+    <section class="product-section" id="about">
+        <div class="container">
+            <h2>Our Popular Dishes</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="product-card">
+                        <img src="product1.jpg" class="card-img-top" alt="Pizza">
+                        <div class="card-body">
+                            <h5 class="card-title">Classic Margherita Pizza</h5>
+                            <p class="card-text">A simple, yet delicious pizza with fresh mozzarella.</p>
+                            <button>Order Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="product-card">
+                        <img src="product2.jpg" class="card-img-top" alt="Burger">
+                        <div class="card-body">
+                            <h5 class="card-title">Cheese Burger</h5>
+                            <p class="card-text">A juicy burger with melted cheese and crispy bacon.</p>
+                            <button>Order Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="product-card">
+                        <img src="product3.jpg" class="card-img-top" alt="Pasta">
+                        <div class="card-body">
+                            <h5 class="card-title">Creamy Alfredo Pasta</h5>
+                            <p class="card-text">Rich and creamy Alfredo sauce with perfectly cooked pasta.</p>
+                            <button>Order Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Best Sellers Section -->
+    <section id="best-sellers" class="container py-5">
+        <h2 class="section-title">Best Sellers</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="best-seller1.jpg" class="card-img-top" alt="Best Seller Pizza">
+                    <div class="card-body">
+                        <h5 class="card-title">Margherita Pizza</h5>
+                        <p class="card-text">A classic pizza with fresh mozzarella and basil.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="best-seller2.jpg" class="card-img-top" alt="Best Seller Burger">
+                    <div class="card-body">
+                        <h5 class="card-title">Cheese Burger</h5>
+                        <p class="card-text">A juicy burger with melted cheese and crispy bacon.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="best-seller3.jpg" class="card-img-top" alt="Best Seller Pasta">
+                    <div class="card-body">
+                        <h5 class="card-title">Spaghetti Bolognese</h5>
+                        <p class="card-text">Rich and flavorful spaghetti with a savory meat sauce.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section id="new-arrivals" class="container py-5" style="background-color: #fafafa;">
+        <h2 class="section-title">New Arrivals</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="new-arrival1.jpg" class="card-img-top" alt="New Arrival Pizza">
+                    <div class="card-body">
+                        <h5 class="card-title">BBQ Chicken Pizza</h5>
+                        <p class="card-text">New and exciting BBQ chicken pizza with a tangy sauce.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="new-arrival2.jpg" class="card-img-top" alt="New Arrival Pasta">
+                    <div class="card-body">
+                        <h5 class="card-title">Penne Alfredo</h5>
+                        <p class="card-text">New penne pasta with creamy Alfredo sauce and grilled chicken.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="new-arrival3.jpg" class="card-img-top" alt="New Arrival Burger">
+                    <div class="card-body">
+                        <h5 class="card-title">Vegan Burger</h5>
+                        <p class="card-text">A delicious and healthy vegan burger packed with flavor.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section id="special-offers" class="container py-5">
+        <h2 class="section-title">Special Offers</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="special-offer1.jpg" class="card-img-top" alt="Special Offer Pizza">
+                    <div class="card-body">
+                        <h5 class="card-title">Buy One Get One Free</h5>
+                        <p class="card-text">Enjoy a free pizza when you buy one pizza of your choice.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="special-offer2.jpg" class="card-img-top" alt="Special Offer Burger">
+                    <div class="card-body">
+                        <h5 class="card-title">20% Off on Burgers</h5>
+                        <p class="card-text">Get 20% off on all burger orders today!</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="special-offer3.jpg" class="card-img-top" alt="Special Offer Pasta">
+                    <div class="card-body">
+                        <h5 class="card-title">Free Drink with Pasta</h5>
+                        <p class="card-text">Order any pasta and get a free soft drink with it.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Favorites Section -->
+    <section id="customer-favorites" class="container py-5" style="background-color: #fafafa;">
+        <h2 class="section-title">Customer Favorites</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="customer-fav1.jpg" class="card-img-top" alt="Customer Favorite Pizza">
+                    <div class="card-body">
+                        <h5 class="card-title">Pepperoni Pizza</h5>
+                        <p class="card-text">A customer favorite, loaded with pepperoni slices and cheese.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="customer-fav2.jpg" class="card-img-top" alt="Customer Favorite Burger">
+                    <div class="card-body">
+                        <h5 class="card-title">Bacon Cheeseburger</h5>
+                        <p class="card-text">A satisfying burger with crispy bacon and a cheesy patty.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="customer-fav3.jpg" class="card-img-top" alt="Customer Favorite Pasta">
+                    <div class="card-body">
+                        <h5 class="card-title">Fettuccine Alfredo</h5>
+                        <p class="card-text">A creamy, rich fettuccine pasta that’s a customer favorite.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seasonal Specials Section -->
+    <section id="seasonal-specials" class="container py-5">
+        <h2 class="section-title">Seasonal Specials</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="seasonal-special1.jpg" class="card-img-top" alt="Seasonal Special Pizza">
+                    <div class="card-body">
+                        <h5 class="card-title">Winter Wonderland Pizza</h5>
+                        <p class="card-text">A festive pizza with roasted vegetables and holiday spices.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="seasonal-special2.jpg" class="card-img-top" alt="Seasonal Special Burger">
+                    <div class="card-body">
+                        <h5 class="card-title">Autumn Pumpkin Burger</h5>
+                        <p class="card-text">A seasonal burger with a pumpkin and spice-infused patty.</p>
+                        <button>Order Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <img src="seasonal-special3.jpg" class="card-img-top" alt="Seasonal Special Pasta">
+                    <div class="card-body">
+                        <h5 class="card-title">Spicy Winter Pasta</h5>
+                        <p class="card-text">A spicy pasta with red pepper flakes and creamy sauce.</p>
+                        <button>Add-to-cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sticky Button -->
+    <button class="sticky-btn">Order Now</button>
+
+
+    <!-- Sticky Button -->
+    <button class="sticky-btn">Order Now</button>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Bhookha Panda. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

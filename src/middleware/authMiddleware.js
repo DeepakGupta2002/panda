@@ -16,8 +16,13 @@ const protect = async (req, res, next) => {
             // Attach the user to the request
             req.user = await User.findById(decoded.id).select('-password');
 
+            if (!req.user) {
+                return res.status(401).json({ message: 'User not found' });
+            }
+
             next();
         } catch (error) {
+            console.error(error);
             return res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
@@ -28,3 +33,4 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = { protect };
+

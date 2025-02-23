@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for product cards and horizontal scroll */
+        .product-card {
+            width: 200px;
+            /* Fixed width for all cards */
+            height: 350px;
+            /* Fixed height for all cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #productList {
+            display: block;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .overflow-auto {
+            overflow-x: auto;
+        }
+
+        .card {
+            flex: 0 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Product Management</h2>
+        <!-- Search bar -->
+        <div class="mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search products..."
+                onkeyup="handleSearch()">
+        </div>
+
+        <!-- Create Product Form -->
+        <div class="mb-4">
+            <h3>Create New Product</h3>
+            <form id="createProductForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="productName" class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="productName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="productDescription" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="productPrice" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="productPrice" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productImages" class="form-label">Images</label>
+                    <input type="file" class="form-control" id="productImages" multiple>
+                </div>
+
+                <!-- Category Dropdown -->
+                <div class="mb-3">
+                    <label for="categoryId" class="form-label">Category</label>
+                    <select class="form-control" id="categoryId" required>
+                        <option value="">Select Category</option>
+                        <!-- Categories will be populated here  //nahi populate ho raha hai -->
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Product</button>
+            </form>
+        </div>
+
+        <!-- Product List -->
+        <h3>Products</h3>
+        <ul id="productList" class="list-group">
+            <!-- Products will be displayed here -->
+        </ul>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="editProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editProductDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Price</label>
+                            <input type="number" class="form-control" id="editProductPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductImages" class="form-label">Images</label>
+                            <input type="file" class="form-control" id="editProductImages" multiple>
+                            <div id="editProductImagesPreview"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Product list container -->
+    <div id="productList"></div>
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiBaseUrl = 'http://localhost:3000/api'; // Replace with your backend API URL
+
+        // Fetch and display all products
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/products`);
+                const products = await response.json();
+                const productList = document.getElementById('productList');
+                productList.innerHTML = '';
+
+                // Create the container for horizontal layout (without visible scrollbar)
+                const scrollContainer = document.createElement('div');
+                scrollContainer.classList.add('d-flex', 'flex-wrap', 'py-3', 'gap-3');  // Flexbox, flex-wrap for wrapping items
+
+                products.forEach(product => {
+                    const productItem = document.createElement('div');
+                    productItem.classList.add('card', 'shadow-sm', 'rounded-3', 'product-card');
+
+                    // If the product has multiple images, we create a carousel; otherwise, just display the first image.
+                    let imageCarousel = '';
+                    if (product.images.length > 1) {
+                        imageCarousel = `
+                    <div id="carousel-${product._id}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            ${product.images.map((img, index) => `
+                                <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                    <img src="${img}" class="d-block w-100 rounded-top" alt="${product.name}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${product._id}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${product._id}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                `;
+                    } else {
+                        // For products with only one image, display it normally
+                        imageCarousel = `<img src="${product.images[0]}" class="d-block w-100 rounded-top" alt="${product.name}" />`;
+                    }
+
+                    productItem.innerHTML = `
+                ${imageCarousel}
+                <div class="card-body">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text">${product.description}</p>
+                    <p><strong>Price:</strong> ₹${product.price}</p>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-warning btn-sm" onclick="editProduct('${product._id}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDeleteProduct('${product._id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+                    scrollContainer.appendChild(productItem);
+                });
+
+                // Append the scroll container to the product list
+                productList.appendChild(scrollContainer);
+            } catch (error) {
+                alert('Error fetching products.');
+            }
+        }
+
+        // Function to handle the search (This is a placeholder, you can customize based on your requirements)
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.product-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').innerText.toLowerCase();
+                const description = card.querySelector('.card-text').innerText.toLowerCase();
+
+                if (title.includes(query) || description.includes(query)) {
+                    card.style.display = 'block';  // Show matching products
+                } else {
+                    card.style.display = 'none';  // Hide non-matching products
+                }
+            });
+        }
+        // Fetch and display categories in the dropdown
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/categories`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const categories = await response.json();
+                console.log('Categories fetched:', categories); // Debugging log
+                const categorySelect = document.getElementById('categoryId');
+                categorySelect.innerHTML = '<option value="">Select Category</option>'; // Reset options
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category._id; // Ensure this matches your backend response field
+                    option.textContent = category.name; // Ensure this matches your backend response field
+                    categorySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                alert('Error fetching categories.');
+            }
+        }
+
+        // Create product
+        // document.getElementById('createProductForm').addEventListener('submit', async (event) => {
+        //     event.preventDefault();
+        //     const formData = new FormData();
+        //     formData.append('name', document.getElementById('productName').value);
+        //     formData.append('description', document.getElementById('productDescription').value);
+        //     formData.append('price', document.getElementById('productPrice').value);
+        //     formData.append('categoryId', document.getElementById('categoryId').value); // Add category ID
+
+        //     const images = document.getElementById('productImages').files;
+        //     for (let i = 0; i < images.length; i++) {
+        //         formData.append('images', images[i]);
+        //         if (!image || !fileTypes.test(image.type)) {
+        //             showAlert('Invalid file type! Please upload a JPEG, JPG, PNG, or GIF image.', false);
+        //             return;
+        //         }
+        //     }
+
+        //     try {
+        //         const response = await fetch(`${apiBaseUrl}/products`, {
+        //             method: 'POST',
+        //             body: formData
+        //         });
+        //         if (response.ok) {
+        //             alert('Product created successfully');
+        //             fetchProducts(); // Reload products list
+        //         } else {
+        //             alert('Error creating product');
+        //         }
+        //     } catch (error) {
+        //         alert('Error creating product');
+        //     }
+        // });
+
+
+        document.getElementById('createProductForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('productName').value);
+            formData.append('description', document.getElementById('productDescription').value);
+            formData.append('price', document.getElementById('productPrice').value);
+            formData.append('categoryId', document.getElementById('categoryId').value);
+
+            const images = document.getElementById('productImages').files;
+            const fileTypes = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+
+            for (let i = 0; i < images.length; i++) {
+                if (!images[i] || !fileTypes.test(images[i].name)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Type',
+                        text: 'Please upload a JPEG, JPG, PNG, or GIF image!',
+                        confirmButtonText: 'Okay',
+                    });
+                    return;
+                }
+                formData.append('images', images[i]);
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/products`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Product Created',
+                        text: 'Your product has been created successfully!',
+                        confirmButtonText: 'Great!',
+                    });
+                    fetchProducts(); // Reload products list
+                } else {
+                    const errorData = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Failed to create product: ${errorData.message}`,
+                        confirmButtonText: 'Try Again',
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again later.',
+                    confirmButtonText: 'Okay',
+                });
+            }
+        });
+
+        // Delete product with confirmation
+        async function confirmDeleteProduct(id) {
+            const confirmDelete = confirm('Are you sure you want to delete this product?');
+            if (confirmDelete) {
+                try {
+                    const response = await fetch(`${apiBaseUrl}/products/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('Product deleted successfully');
+                        fetchProducts(); // Reload products list
+                    } else {
+                        alert('Error deleting product');
+                    }
+                } catch (error) {
+                    alert('Error deleting product');
+                }
+            }
+        }
+
+        // Edit product
+        async function editProduct(id) {
+            const product = await fetch(`${apiBaseUrl}/products/${id}`).then(res => res.json());
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductDescription').value = product.description;
+            document.getElementById('editProductPrice').value = product.price;
+
+            const editProductImagesPreview = document.getElementById('editProductImagesPreview');
+            editProductImagesPreview.innerHTML = '';
+            product.images.forEach(image => {
+                const img = document.createElement('img');
+                img.src = image;
+                img.classList.add('img-thumbnail');
+                img.width = 100;
+                editProductImagesPreview.appendChild(img);
+            });
+
+            document.getElementById('editProductForm').onsubmit = async function (event) {
+                event.preventDefault();
+                const formData = new FormData();
+                formData.append('name', document.getElementById('editProductName').value);
+                formData.append('description', document.getElementById('editProductDescription').value);
+                formData.append('price', document.getElementById('editProductPrice').value);
+
+                const images = document.getElementById('editProductImages').files;
+                for (let i = 0; i < images.length; i++) {
+                    formData.append('images', images[i]);
+                }
+
+                try {
+                    const response = await fetch(`${apiBaseUrl}/products/${id}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        alert('Product updated successfully');
+                        fetchProducts(); // Reload products list
+                        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide(); // Hide modal
+                    } else {
+                        alert('Error updating product');
+                    }
+                } catch (error) {
+                    alert('Error updating product');
+                }
+            };
+
+            // Open modal for editing
+            const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            modal.show();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
+            fetchProducts();
+        });
+    </script>
+</body>
+
+</html>

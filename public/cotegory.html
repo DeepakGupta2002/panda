@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories and Products</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .circular-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 10px auto;
+            text-align: center;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ddd;
+            cursor: pointer;
+        }
+
+        .circular-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .category-name {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            width: 200px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .nav-search-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-search-bar .search-bar {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        #back-to-categories {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-icon span {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation with Logo, Search Bar, and Cart Icon -->
+    <div class="nav-search-bar">
+        <a class="navbar-brand" href="#">
+            <div
+                style="background-color: #FFD700; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                <img src="image/bhukha_panda-removebg-preview.png" alt="Bhookha Panda Logo"
+                    style="width: 40px; height: 40px;">
+            </div>
+        </a>
+        <input type="text" class="form-control search-bar" placeholder="Search here..." />
+        <div>
+            <button class="btn btn-outline-secondary">&#9776;</button>
+            <button id="cart-icon" class="btn btn-outline-secondary position-relative">
+                🛒
+                <span id="cart-count"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    0
+                </span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Back to Categories Button -->
+    <button class="btn btn-primary" id="back-to-categories">Back to Categories</button>
+
+    <!-- Categories Section -->
+    <div class="container mt-4" id="categories-section">
+        <div class="row text-center">
+            <h3>Categories</h3>
+            <div id="categories-container" class="d-flex flex-wrap justify-content-center"></div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="container mt-4 d-none" id="products-section">
+        <div class="row text-center">
+            <h3>Products</h3>
+            <div id="products-container" class="d-flex flex-wrap justify-content-center"></div>
+        </div>
+    </div>
+
+    <script>
+        const categoriesContainer = document.getElementById("categories-container");
+        const productsContainer = document.getElementById("products-container");
+        const categoriesSection = document.getElementById("categories-section");
+        const productsSection = document.getElementById("products-section");
+        const backToCategoriesButton = document.getElementById("back-to-categories");
+        const cartCountElement = document.getElementById("cart-count");
+        const userId = localStorage.getItem('user_i');
+
+        // Fetch categories
+        async function fetchCategories() {
+            const res = await fetch("http://localhost:3000/api/categories");
+            const categories = await res.json();
+            renderCategories(categories);
+        }
+
+        // Fetch products by category
+        async function fetchProducts(categoryId) {
+            const res = await fetch("http://localhost:3000/api/products");
+            const products = await res.json();
+            const filteredProducts = products.filter(
+                (product) => product.categoryId._id === categoryId
+            );
+            renderProducts(filteredProducts);
+        }
+
+        // Render categories
+        function renderCategories(categories) {
+            categoriesContainer.innerHTML = "";
+            categories.forEach((category) => {
+                const categoryElement = document.createElement("div");
+                categoryElement.className = "circular-image";
+                categoryElement.innerHTML = `<img src="${category.imageUrl}" alt="${category.name}" />`;
+                categoryElement.addEventListener("click", () => {
+                    categoriesSection.classList.add("d-none");
+                    productsSection.classList.remove("d-none");
+                    backToCategoriesButton.style.display = "block"; // Show back button
+                    fetchProducts(category._id);
+                });
+
+                const categoryWrapper = document.createElement("div");
+                categoryWrapper.className = "col-4 col-md-2 text-center";
+                categoryWrapper.appendChild(categoryElement);
+
+                const categoryName = document.createElement("p");
+                categoryName.className = "category-name";
+                categoryName.textContent = category.name;
+                categoryWrapper.appendChild(categoryName);
+
+                categoriesContainer.appendChild(categoryWrapper);
+            });
+        }
+
+        // Render products
+        function renderProducts(products) {
+            productsContainer.innerHTML = "";
+            if (products.length === 0) {
+                productsContainer.innerHTML = "<p>No products available for this category.</p>";
+                return;
+            }
+            products.forEach((product) => {
+                const productCard = document.createElement("div");
+                productCard.className = "product-card m-2";
+                productCard.innerHTML = `
+            <img src="${product.images[0]}" alt="${product.name}" />
+            <h5>${product.name}</h5>
+            <p>${product.description}</p>
+            <p><strong>Price:</strong> ₹${product.price}</p>
+            <button class="btn btn-success btn-sm add-to-cart-btn" data-product-id="${product._id}">Add to Cart</button>
+        `;
+                productsContainer.appendChild(productCard);
+            });
+
+            // Attach event listeners to "Add to Cart" buttons
+            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+            addToCartButtons.forEach((button) => {
+                button.addEventListener("click", async (event) => {
+                    const productId = event.target.getAttribute("data-product-id");
+                    await addToCart(productId);
+                });
+            });
+        }
+
+        // Add to Cart logic
+        async function addToCart(productId) {
+            try {
+                const response = await fetch("http://localhost:3000/api/cart/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ userId, productId, quantity: 1 }) // Replace `userId` with actual user ID
+                });
+
+                if (response.ok) {
+                    alert("Item added to cart!");
+                    updateCartCount(); // Update cart count after adding
+                } else {
+                    alert("Failed to add item to cart.");
+                }
+            } catch (error) {
+                console.error("Error adding item to cart:", error);
+            }
+        }
+
+        // Update cart count
+        async function updateCartCount() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/cart?userId=${userId}`);
+                if (response.ok) {
+                    const cartData = await response.json();
+                    console.log(cartData);
+                    const totalItems = cartData.cart.items.length; // `items` की लंबाई से कुल आइटम्स की गणना
+                    cartCountElement.textContent = totalItems || 0;
+                }
+            } catch (error) {
+                console.error("Error fetching cart count:", error);
+            }
+        }
+
+        // Back to Categories with 1-second delay
+        backToCategoriesButton.addEventListener("click", () => {
+            backToCategoriesButton.disabled = true; // Disable button to prevent multiple clicks
+            setTimeout(() => {
+                categoriesSection.classList.remove("d-none");
+                productsSection.classList.add("d-none");
+                backToCategoriesButton.style.display = "none"; // Hide back button
+                backToCategoriesButton.disabled = false; // Re-enable button
+            }, 1000); // 1-second delay
+        });
+        // Cart icon element
+        const cartIcon = document.getElementById("cart-icon");
+
+        // Add click event listener to redirect to cart.html
+        cartIcon.addEventListener("click", () => {
+            // Show loading indicator
+            document.body.innerHTML += `<div id="loading-indicator" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        color: #333;
+        z-index: 9999;
+    ">Loading...</div>`;
+
+            // Redirect to cart.html after a slight delay
+            setTimeout(() => {
+                window.location.href = "cart.html";
+            }, 100); // Optional small delay for effect
+        });
+
+        // Update cart count on page load
+        updateCartCount();
+
+
+        // Initialize
+        fetchCategories();
+        updateCartCount(); // Fetch initial cart count
+    </script>
+</body>
+
+</html>
