@@ -1,30 +1,36 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// ✅ Define storage for uploads
+// Ensure uploads folder exists
+const uploadDir = 'D:/node/node2/panda/fornten/uploads';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer storage configuration
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');  // Folder to save the image temporarily
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));  // Unique filename
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
 });
 
-// ✅ File filter for images only
+// File filter for images only
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
+    const fileTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+        return cb(null, true);
     } else {
-        cb(new Error('Only image files are allowed!'), false);
+        return cb(new Error('Only image files are allowed!'));
     }
 };
 
-// ✅ Multer instance
-const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: { fileSize: 2 * 1024 * 1024 } // ✅ 2MB max size
-});
+const upload = multer({ storage, fileFilter });
 
 module.exports = { upload };

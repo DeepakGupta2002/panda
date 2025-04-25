@@ -1,41 +1,132 @@
-document.getElementById('getLocationBtn').addEventListener('click', function () {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
+const paymentBtn = document.getElementById('proceed-to-payment-btn');
+const addressFields = {
+    address: document.getElementById('address'),
+    pincode: document.getElementById('pincode'),
+    name: document.getElementById('name'),
+    phone: document.getElementById('phone'),
+    deliveryInstructions: document.getElementById('deliveryInstructions')
+};
 
-            // Nominatim API ka URL (reverse geocoding ke liye)
-            const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+// Update all form fields
+function updateFormFields(data = {}) {
+    for (const field in addressFields) {
+        if (addressFields[field] && data[field]) {
+            addressFields[field].value = data[field];
+        }
+    }
+}
 
-            // Fetch request for reverse geocoding
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.address) {
-                        // Address parts ko display karenge
-                        const address = data.display_name; // Complete address
-                        console.log(address)
-                        document.getElementById('address').value = address;
+// Show toast notification
+function showToast(message, type = 'info') {
+    alert(`${type.toUpperCase()}: ${message}`);
+}
 
-                        // Alag-alag components ko display karna
-                        document.getElementById('city').value = data.address.city || "Not Available";
-                        document.getElementById('state').value = data.address.state || "Not Available";
-                        document.getElementById('country').value = data.address.country || "Not Available";
+// Save to localStorage
+function saveToLocalStorage() {
+    try {
+        const formData = {};
+        for (const field in addressFields) {
+            if (addressFields[field]) {
+                formData[field] = addressFields[field].value.trim();
+            }
+        }
 
-                        // Latitude aur Longitude ko bhi fields mein set karenge
-                        document.getElementById('latitude').value = latitude;
-                        document.getElementById('longitude').value = longitude;
-                    } else {
-                        alert('Address not found!');
-                    }
-                })
-                .catch(error => {
-                    alert('Error: ' + error.message);
-                });
-        }, function (error) {
-            alert('Error getting location: ' + error.message);
+        localStorage.setItem('userLocationData', JSON.stringify(formData));
+        console.log('✅ Data saved to localStorage:', formData);
+    } catch (error) {
+        console.error('❌ Error saving to localStorage:', error);
+    }
+}
+
+// Load from localStorage
+function loadFromLocalStorage() {
+    try {
+        const savedData = localStorage.getItem('userLocationData');
+        return savedData ? JSON.parse(savedData) : {};
+    } catch (error) {
+        console.error('❌ Error loading from localStorage:', error);
+        return {};
+    }
+}
+
+// Validate form before payment
+function validateForm() {
+    const requiredFields = ['name', 'phone', 'address', 'pincode'];
+    for (const field of requiredFields) {
+        if (!addressFields[field]?.value.trim()) {
+            showToast(`Please fill in the ${field} field`, 'error');
+            return false;
+        }
+    }
+    return true;
+}
+
+// POST to API with JWT token
+async function postDataToServer(data) {
+    try {
+        const token = localStorage.getItem('token'); // JWT from localStorage
+        if (!token) {
+            showToast('User token missing. Please login again.', 'error');
+            return;
+        }
+
+        const response = await fetch('http://localhost:3000/api/addaddres', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Attach token in header
+            },
+            body: JSON.stringify(data)
         });
-    } else {
-        alert("Geolocation is not supported by this browser.");
+
+        const result = await response.json();
+        console.log('✅ Server response:', result);
+
+        if (response.ok) {
+            showToast('Address saved successfully', 'success');
+        } else {
+            showToast(`Server error: ${result.message || 'Failed to save'}`, 'error');
+        }
+    } catch (error) {
+        console.error('❌ Error posting to server:', error);
+        showToast('Network error while saving address', 'error');
+    }
+}
+
+// Handle payment button click
+async function handlePaymentClick() {
+    if (!validateForm()) return;
+
+    const formData = {
+        name: addressFields.name.value.trim(),
+        phone: addressFields.phone.value.trim(),
+        address: addressFields.address.value.trim(),
+        pincode: addressFields.pincode.value.trim(),
+        deliveryInstructions: addressFields.deliveryInstructions.value.trim()
+    };
+
+    // Save to localStorage before sending
+    localStorage.setItem('userLocationData', JSON.stringify(formData));
+
+    console.log('🧾 Sending to API:', formData);
+    await postDataToServer(formData);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function () {
+    const savedData = loadFromLocalStorage();
+    if (savedData) {
+        updateFormFields(savedData);
+    }
+
+    if (paymentBtn) {
+        paymentBtn.addEventListener('click', handlePaymentClick);
+    }
+
+    for (const field in addressFields) {
+        if (addressFields[field]) {
+            addressFields[field].addEventListener('input', saveToLocalStorage);
+            addressFields[field].addEventListener('change', saveToLocalStorage);
+        }
     }
 });

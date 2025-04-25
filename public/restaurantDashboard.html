@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhooka Panda - Delivery Partner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #FF5A5F;
+            --secondary-color: #00A699;
+            --accent-color: #FC642D;
+            --dark-color: #2D2D2D;
+            --light-bg: #FFF8F6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .delivery-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-pic {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+
+        .rating-badge {
+            background-color: white;
+            color: var(--accent-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .rating-badge i {
+            margin-right: 0.25rem;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .active-order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .order-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .order-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            background-color: rgba(255, 90, 95, 0.1);
+            color: var(--primary-color);
+        }
+
+        .restaurant-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .restaurant-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+
+        .delivery-map {
+            height: 200px;
+            background-color: #eee;
+            border-radius: 15px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #f5f5f5 25%, #e0e0e0 25%, #e0e0e0 50%, #f5f5f5 50%, #f5f5f5 75%, #e0e0e0 75%);
+            background-size: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .delivery-steps {
+            margin: 1.5rem 0;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            color: #999;
+        }
+
+        .step.active .step-icon {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-icon {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .step-content {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-details {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .step-connector {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -1.25rem;
+            width: 2px;
+            background-color: #f0f0f0;
+        }
+
+        .step:last-child .step-connector {
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-delivery {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delivery i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .earnings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .earnings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .earnings-title {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .earnings-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+
+        .earnings-breakdown {
+            margin-top: 1rem;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+        }
+
+        .delivery-history {
+            margin-top: 1.5rem;
+        }
+
+        .delivery-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .delivery-item:last-child {
+            border-bottom: none;
+        }
+
+        .delivery-restaurant {
+            font-weight: 500;
+        }
+
+        .delivery-earning {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .delivery-time {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .nav-item i {
+            font-size: 1.4rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .nav-icon-wrapper {
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding-bottom: 80px;
+            }
+
+            .bottom-nav {
+                max-width: 600px;
+                margin: 0 auto;
+                border-radius: 20px 20px 0 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 2rem);
+            }
+        }
+
+        /* Animation for pulse effect */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Delivery Header -->
+        <div class="delivery-header">
+            <div class="profile-card">
+                <img src="https://i.imgur.com/JQ9pGtT.png" alt="Delivery Partner" class="profile-pic">
+                <div>
+                    <h4 class="mb-1">Rajesh Kumar</h4>
+                    <span class="rating-badge">
+                        <i class="bi bi-star-fill"></i> 4.8
+                    </span>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-row">
+                    <span class="stat-label">Today's Deliveries</span>
+                    <span class="stat-value">7/12</span>
+                </div>
+                <div class="stats-row">
+                    <span class="stat-label">Earnings</span>
+                    <span class="stat-value">₹1,850</span>
+                </div>
+                <div class="stats-row">
+                    <span class="stat-label">Avg. Time/Delivery</span>
+                    <span class="stat-value">22 min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Order -->
+        <div class="active-order-card">
+            <div class="order-header">
+                <div>
+                    <div class="order-id">ORDER #4251</div>
+                    <div class="order-time">Placed 12:24 PM</div>
+                </div>
+                <span class="order-status">ACTIVE</span>
+            </div>
+
+            <div class="restaurant-info">
+                <img src="https://i.imgur.com/JQ9pGtT.png" alt="Restaurant" class="restaurant-logo">
+                <div>
+                    <div class="fw-bold">Tandoori Hut</div>
+                    <div class="text-muted small">1.2 km away</div>
+                </div>
+            </div>
+
+            <div class="delivery-map">
+                <div class="map-placeholder">
+                    Live Delivery Map
+                </div>
+            </div>
+
+            <div class="delivery-steps">
+                <div class="step completed">
+                    <div class="step-icon">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Pickup from Restaurant</div>
+                        <div class="step-details">Order ready at 12:45 PM</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step active">
+                    <div class="step-icon pulse">
+                        <i class="bi bi-bicycle"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Deliver to Customer</div>
+                        <div class="step-details">Rahul Sharma • 3.5 km • ETA 1:15 PM</div>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Delivery Complete</div>
+                        <div class="step-details">Get payment confirmation</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-outline-secondary btn-delivery">
+                    <i class="bi bi-telephone"></i> Call Customer
+                </button>
+                <button class="btn btn-primary btn-delivery">
+                    <i class="bi bi-check-circle"></i> Mark Delivered
+                </button>
+            </div>
+        </div>
+
+        <!-- Earnings Card -->
+        <div class="earnings-card">
+            <div class="earnings-header">
+                <div class="earnings-title">Today's Earnings</div>
+                <div class="text-primary small">View All</div>
+            </div>
+
+            <div class="earnings-amount">₹1,850</div>
+            <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65"
+                    aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="small text-muted">65% of daily target (₹2,850)</div>
+
+            <div class="earnings-breakdown">
+                <div class="breakdown-row">
+                    <span>Base Pay</span>
+                    <span>₹1,250</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Tips</span>
+                    <span>₹350</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Incentives</span>
+                    <span>₹250</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery History -->
+        <div class="earnings-card">
+            <div class="earnings-header">
+                <div class="earnings-title">Recent Deliveries</div>
+                <div class="text-primary small">View All</div>
+            </div>
+
+            <div class="delivery-history">
+                <div class="delivery-item">
+                    <div>
+                        <div class="delivery-restaurant">Burger King</div>
+                        <div class="delivery-time">11:45 AM • 3.2 km</div>
+                    </div>
+                    <div class="delivery-earning">₹220</div>
+                </div>
+                <div class="delivery-item">
+                    <div>
+                        <div class="delivery-restaurant">Pizza Hut</div>
+                        <div class="delivery-time">10:30 AM • 2.8 km</div>
+                    </div>
+                    <div class="delivery-earning">₹195</div>
+                </div>
+                <div class="delivery-item">
+                    <div>
+                        <div class="delivery-restaurant">McDonald's</div>
+                        <div class="delivery-time">9:15 AM • 1.5 km</div>
+                    </div>
+                    <div class="delivery-earning">₹180</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <div class="nav-icon-wrapper">
+                <i class="bi bi-house-door"></i>
+            </div>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon-wrapper">
+                <i class="bi bi-map"></i>
+            </div>
+            <span>Zones</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon-wrapper">
+                <i class="bi bi-wallet2"></i>
+                <span class="nav-notification">3</span>
+            </div>
+            <span>Earnings</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon-wrapper">
+                <i class="bi bi-person"></i>
+            </div>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple animation for the active delivery step
+        setInterval(() => {
+            const pulseIcon = document.querySelector('.step.active .step-icon');
+            pulseIcon.classList.toggle('pulse');
+        }, 2000);
+
+        // This would be replaced with actual map integration in production
+        // For demo purposes only
+        const deliveryMap = document.querySelector('.delivery-map');
+        deliveryMap.addEventListener('click', () => {
+            alert('In the actual app, this would open Google Maps with navigation');
+        });
+    </script>
+</body>
+
+</html>

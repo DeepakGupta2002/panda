@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Bhookha Panda</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .confirmation-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-header h1 {
+            color: #28a745;
+        }
+
+        .confirmation-details {
+            margin-bottom: 20px;
+        }
+
+        .confirmation-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .confirmation-details p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .btn-home {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-home:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="confirmation-container">
+        <!-- Order Confirmation Header -->
+        <div class="confirmation-header">
+            <h1>🎉 Order Confirmed! 🎉</h1>
+            <p>Thank you for ordering with Bhookha Panda. Your food is on its way!</p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="confirmation-details">
+            <h2>Order Details</h2>
+            <p><strong>Order ID:</strong> <span id="order-id">123456</span></p>
+            <p><strong>Order Date:</strong> <span id="order-date">October 10, 2023</span></p>
+            <p><strong>Total Amount:</strong> ₹<span id="order-amount">500</span></p>
+            <p><strong>Payment Method:</strong> <span id="payment-method">Online Payment</span></p>
+            <p><strong>Payment Status:</strong> <span id="payment-status">Success</span></p>
+        </div>
+
+        <!-- Delivery Details -->
+        <div class="confirmation-details">
+            <h2>Delivery Details</h2>
+            <p><strong>Name:</strong> <span id="delivery-name">John Doe</span></p>
+            <p><strong>Address:</strong> <span id="delivery-address">123, Street Name, City, State, 560001</span></p>
+            <p><strong>Phone:</strong> <span id="delivery-phone">9876543210</span></p>
+            <p><strong>Expected Delivery:</strong> <span id="delivery-time">30-40 minutes</span></p>
+        </div>
+
+        <!-- Back to Home Button -->
+        <a href="cotegory.html" class="btn-home">Back to Home</a>
+    </div>
+
+    <script>
+        // Fetch order details from localStorage or query parameters
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+            const orderDate = urlParams.get('orderDate');
+            const orderAmount = urlParams.get('orderAmount');
+            const paymentMethod = urlParams.get('paymentMethod');
+            const paymentStatus = urlParams.get('paymentStatus');
+            const deliveryName = urlParams.get('deliveryName');
+            const deliveryAddress = urlParams.get('deliveryAddress');
+            const deliveryPhone = urlParams.get('deliveryPhone');
+
+            // Populate order details
+            document.getElementById('order-id').textContent = orderId || '123456';
+            document.getElementById('order-date').textContent = orderDate || new Date().toLocaleDateString();
+            document.getElementById('order-amount').textContent = orderAmount || '500';
+            document.getElementById('payment-method').textContent = paymentMethod || 'Online Payment';
+            document.getElementById('payment-status').textContent = paymentStatus || 'Success';
+            document.getElementById('delivery-name').textContent = deliveryName || 'John Doe';
+            document.getElementById('delivery-address').textContent = deliveryAddress || '123, Street Name, City, State, 560001';
+            document.getElementById('delivery-phone').textContent = deliveryPhone || '9876543210';
+
+            // Set expected delivery time
+            const deliveryTime = new Date();
+            deliveryTime.setMinutes(deliveryTime.getMinutes() + 40);
+            document.getElementById('delivery-time').textContent = deliveryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        });
+    </script>
+</body>
+
+</html>

@@ -18,13 +18,22 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const { handleLocationUpdate, handleUserDisconnect, locationController } = require("./src/controllers/locationController");
-const { UserAddresRouter } = require('./src/routes/User/AddreshRoutes');
+// const { handleLocationUpdate, handleUserDisconnect, locationController } = require("./src/controllers/locationController");
+const { UserAddresRouter, addreshRouter } = require('./src/routes/User/AddreshRoutes');
+const crypto = require('crypto');
+const { Cart } = require('./src/models/addTocart');
+// const Payment = require('./src/models/Payment');
+const { deliveryBoyRouter } = require('./src/routes/deliveryBoy/authDeliveryBoy');
+const { personalrouter } = require('./src/routes/deliveryBoy/personalRoutes');
+const { Identificationrouter } = require('./src/routes/deliveryBoy/idRoutes');
+const { BankRouter } = require('./src/routes/deliveryBoy/bankRoutes');
 // Load environment variables
 const Razorpay = require('razorpay'); // Ensure Razorpay is required
-
-
-
+const { LocationRouter } = require('./src/routes/deliveryBoy/locationRoutes');
+const Payment = require('./src/models/User/paymentSchema');  // ya '../models/Payment' path ke hisab se
+const { sendInvoiceEmail } = require('./src/controllers/invoiceController');
+// const { sendInvoiceEmail } = require('./controllers/invoiceController');
+const User = require('./src/models/userModel');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -36,87 +45,115 @@ const io = new Server(server, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // const Razorpay = require('razorpay');
-const crypto = require('crypto');
-const { Cart } = require('./src/models/addTocart');
-const Payment = require('./src/models/Payment');
-const { deliveryBoyRouter } = require('./src/routes/deliveryBoy/authDeliveryBoy');
+
 // const { deliveryBoyDocument } = require('./src/routes/deliveryBoy/deliveryBoyRoutes');
+
+
+// console.log(process.env.KEY_ID)  
 
 const razorpay = new Razorpay({
     key_id: process.env.KEY_ID,
-    key_secret: process.env.KEY_SECRET
+    key_secret: process.env.KEY_SECRET,
 });
-// console.log(process.env.KEY_ID)  
 
+// 1. Create Razorpay Order
 app.post('/order', async (req, res) => {
     const { userId } = req.body;
-    console.log(req.body)
-    // Check if userId is provided
+
     if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
     try {
-        // Fetch the amount from your cart API
-        const cartResponse = await fetch(`http://localhost:3000/api/cart?userId=${userId}`);
-        if (!cartResponse.ok) {
-            throw new Error('Failed to fetch cart');
-        }
-        const cartData = await cartResponse.json();
+        const cartRes = await fetch(`http://localhost:3000/api/cart?userId=${userId}`);
+        const cartData = await cartRes.json();
         const amount = cartData.cart.totalPrice;
 
-        // Create an order with Razorpay
         const options = {
-            amount: amount * 100, // Amount in paise
+            amount: Math.round(amount * 100),
             currency: 'INR',
-            receipt: `receipt_order_${Date.now()}`
+            receipt: `receipt_${Date.now()}`
         };
 
         const order = await razorpay.orders.create(options);
 
-        // Save the userId and amount in the database
-        const newPayment = new Payment({
+        await Payment.create({
             userId,
-            amount
+            amount,
+            orderId: order.id,
+            status: 'Pending'
         });
 
-        await newPayment.save();
-
-        res.json(order);
+        res.json({
+            id: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            key: process.env.KEY_ID, // send key to frontend
+        });
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'Something went wrong' });
-    }
-});// Verify Payment Route
-
-app.post('/api/payment/verify', async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-    try {
-        // Generate the expected signature
-        const generated_signature = crypto
-            .createHmac('sha256', 'YOUR_RAZORPAY_SECRET')
-            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-            .digest('hex');
-
-        // Verify the signature
-        if (generated_signature === razorpay_signature) {
-            // Update the payment status in the database
-            await Payment.findOneAndUpdate(
-                { orderId: razorpay_order_id },
-                { status: 'Paid', paymentId: razorpay_payment_id }
-            );
-
-            res.status(200).json({ success: true, message: 'Payment verified successfully' });
-        } else {
-            res.status(400).json({ success: false, message: 'Invalid signature' });
-        }
-    } catch (error) {
-        console.error('Error verifying payment:', error);
+        console.error('Error creating order:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
+// 2. Verify Payment
+app.post('/verify-payment', async (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    try {
+        console.log('👉 Verifying Payment with:', {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+        });
+
+        const hash = crypto
+            .createHmac('sha256', process.env.KEY_SECRET)
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+            .digest('hex');
+
+        if (hash === razorpay_signature) {
+            console.log('✅ Signature Verified');
+
+            // Update the payment status in the database
+            const updatedPayment = await Payment.findOneAndUpdate(
+                { orderId: razorpay_order_id },
+                { status: 'Paid', paymentId: razorpay_payment_id },
+                { new: true }
+            );
+
+            if (!updatedPayment) {
+                console.log('❌ Payment record not found');
+                return res.status(404).json({ success: false, message: 'Payment record not found' });
+            }
+
+            console.log('🧾 Updated Payment Record:', updatedPayment);
+
+            // Find the user associated with the payment
+            const user = await User.findById(updatedPayment.userId);
+            if (!user) {
+                console.log('❌ User not found');
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            console.log('📧 Sending invoice to:', user.email);
+
+            // Send the invoice email to the user after the payment is verified
+            await sendInvoiceEmail(razorpay_order_id, user.email);
+
+            console.log('✅ Invoice email sent successfully');
+
+            // Respond back to the client with a success message
+            return res.status(200).json({ success: true, message: 'Payment verified and invoice sent' });
+        } else {
+            console.log('❌ Signature Mismatch');
+            return res.status(400).json({ success: false, message: 'Signature mismatch' });
+        }
+    } catch (err) {
+        console.error('❌ Error in payment verification:', err);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
 
 // If the app is in master mode, spawn workers based on the number of CPU cores
 if (cluster.isMaster) {
@@ -173,10 +210,19 @@ if (cluster.isMaster) {
     app.use(api, deliveryBoyRouter);
     // app.use(api, deliveryBoyDocumentt);
 
+    // deilviery boy all Rotes
+
+    app.use(api, personalrouter)
+    app.use(api, Identificationrouter);
+    app.use(api, BankRouter);
+    app.use(api, LocationRouter);
+
+    // user addreshRoute api 
+    app.use(api, addreshRouter);
 
 
-    // user addresh Router
-    app.use(api, UserAddresRouter);
+    // user addresh Router  
+    // app.use(api, UserAddresRouter);
     // Protected profile route
     app.get('/api/profile', protect, (req, res) => {
         try {
@@ -186,31 +232,7 @@ if (cluster.isMaster) {
             res.status(500).json({ message: 'Internal Server Error' });
         }
     });
-    const users = {};
 
-    // WebSocket logic (socket.io)
-    io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
-
-        // Handle location update from the client
-        socket.on('send-location', (data) => {
-            const { id, latitude, longitude } = data;
-            // Store the user's location data
-            users[id] = { latitude, longitude };
-
-            // Broadcast the location to all clients (except the sender)
-            socket.broadcast.emit('update-location', { id, latitude, longitude });
-        });
-
-        // Handle user disconnecting
-        socket.on('disconnect', () => {
-            console.log('A user disconnected:', socket.id);
-
-            // Remove the user's marker when they disconnect
-            delete users[socket.id];
-            socket.broadcast.emit('remove-marker', socket.id);
-        });
-    });
 
     // Serve index.html for all other routes that aren't API routes
     app.get('/home', (req, res) => {

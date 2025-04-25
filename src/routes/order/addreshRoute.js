@@ -1,7 +1,7 @@
 const express = require('express');
 const addreshRoute = express.Router(); // Router को सही से परिभाषित करें
 
-const Address = require('../../models/addreshModal'); // Address मॉडल का सही पथ दें
+const Address = require('../../models/User/Address');
 
 // Add Address Route
 addreshRoute.post('/addaddress', async (req, res) => {

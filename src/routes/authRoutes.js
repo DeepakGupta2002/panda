@@ -8,8 +8,11 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 // Helper function to generate JWT token
-const generateToken = (userId) => {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const generateToken = (userId, userEmail) => {
+    return jwt.sign({
+        id: userId,
+        email: userEmail // Add the email in the token payload
+    }, process.env.JWT_SECRET, {
         expiresIn: '30d', // Token expiry (e.g., 30 days)
     });
 };
@@ -129,12 +132,13 @@ authRouter.post('/reset-password/:token', async (req, res) => {
 // Protected Route - Profile
 authRouter.get('/profile', protect, async (req, res) => {
     try {
+        const api_id = process.env.KEY_ID;
         const user = await User.findById(req.user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ _id: user._id, name: user.name, email: user.email });
+        res.json({ _id: user._id, name: user.name, email: user.email, api_id });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }

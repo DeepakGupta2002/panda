@@ -1,101 +1,63 @@
-
-
+// Payment Modal Logic
 document.getElementById('proceed-to-payment-btn').addEventListener('click', function () {
+    // Show the payment modal
     var myModal = new bootstrap.Modal(document.getElementById('payment-modal'));
     myModal.show();
 });
 
-document.getElementById('confirm-payment').addEventListener('click', async function () {
-    const paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+// Confirm Payment Button Logic
+// Payment Modal Logic
+document.getElementById('proceed-to-payment-btn').addEventListener('click', function () {
+    // Show the payment modal
+    var myModal = new bootstrap.Modal(document.getElementById('payment-modal'));
+    myModal.show();
+});
 
-    if (!paymentMethod) {
-        alert('Please select a payment method.');
-        return;
-    }
-
-    let paymentData = {};
-    if (paymentMethod.value === 'online') {
-        paymentData = { paymentMethod: 'online' };
-        alert('Proceeding to online payment.');
-    } else if (paymentMethod.value === 'cod') {
-        paymentData = { paymentMethod: 'cod' };
-        alert('Proceeding with Cash on Delivery.');
-    }
-
-    const userId = localStorage.getItem('user_i');
+// Confirm Payment Button Logic
+document.getElementById('confirm-payment').addEventListener('click', async () => {
+    const userId = localStorage.getItem("user_i");
     if (!userId) {
-        alert('User ID is required.');
-        return;
+        return alert("User ID missing!");
     }
 
     try {
-        // Fetch amount from the cart API
-        const cartResponse = await fetch(`http://localhost:3000/api/cart?userId=${userId}`);
-        if (!cartResponse.ok) {
-            throw new Error('Failed to fetch cart');
-        }
-        const cartData = await cartResponse.json();
-        const amount = cartData.cart.totalPrice;
-
-        if (!amount) {
-            alert('Invalid amount. Please try again.');
-            return;
-        }
-
-        // Pass userId and amount to the order API
-        const response = await fetch('http://localhost:3000/order', {
+        const res = await fetch('http://localhost:3000/order', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId })
         });
 
-        console.log(response);
-        if (!response.ok) {
-            throw new Error('Failed to create order');
-        }
+        const order = await res.json();
 
-        const order = await response.json();
+        const razorpay = new Razorpay({
+            key: order.key, // sent from backend
+            amount: order.amount,
+            currency: order.currency,
+            name: "Bhookaha Panda",
+            description: "Order Payment",
+            order_id: order.id,
+            handler: async function (response) {
+                const verifyRes = await fetch('http://localhost:3000/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(response)
+                });
 
-        // Razorpay integration
-        const options = {
-            key: 'rzp_test_nYQzadcgwZUgVD', // Replace with your Razorpay Key ID
-            amount: order.amount, // ✅ Correct reference
-            currency: order.currency, // ✅ Correct reference
-            order_id: order.id, // ✅ Correct reference
-            name: 'Bhookaha Panda',
-            description: 'Order Payment - Enjoy your delicious food!',
-            prefill: {
-                name: 'Customer Name',
-                email: 'customer@example.com',
-                contact: '9876543210',
+                const result = await verifyRes.json();
+                if (result.success) {
+                    alert("Payment successful!");
+                    window.location.href = "confirmation.html";
+                } else {
+                    alert("Payment verification failed!");
+                }
             },
-            notes: {
-                address: 'Delivery Address: 123, Street Name, City',
-                items: 'Margherita Pizza, Garlic Bread',
-            },
-            theme: {
-                color: '#F37254',
-            },
-            handler: function (response) {
-                console.log('Payment successful:', response);
-                alert('Thank you! Your payment was successful.');
-            },
-            modal: {
-                ondismiss: function () {
-                    alert('Payment was not completed. Please try again!');
-                },
-            },
-        };
+            theme: { color: "#F37254" }
+        });
 
-        // Open the Razorpay payment modal
-        const razorpay = new Razorpay(options);
         razorpay.open();
 
     } catch (error) {
-        console.error('Error:', error);
-        alert('There was an issue processing your payment. Please try again.');
+        console.error(error);
+        alert("Something went wrong during payment process.");
     }
 });
-

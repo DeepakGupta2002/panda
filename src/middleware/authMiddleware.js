@@ -5,6 +5,7 @@ const User = require('../models/userModel');
 const protect = async (req, res, next) => {
     let token;
 
+    // Check if token is in the request header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             // Get token from the header
@@ -13,12 +14,15 @@ const protect = async (req, res, next) => {
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Attach the user to the request
+            // Attach the user to the request, including the email from token payload
             req.user = await User.findById(decoded.id).select('-password');
 
             if (!req.user) {
                 return res.status(401).json({ message: 'User not found' });
             }
+
+            // You can also attach the email to the request, if needed
+            req.email = decoded.email;
 
             next();
         } catch (error) {
@@ -33,4 +37,3 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = { protect };
-

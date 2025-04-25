@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bhookha Panda - Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .card {
+            width: 280px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-body h3 {
+            margin: 0 0 5px;
+        }
+
+        .card-body p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .category-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff5722;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 15px;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #388e3c;
+        }
+
+        .checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            transform: scale(1.4);
+        }
+
+        .order-btn {
+            margin-top: 30px;
+            display: block;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🍱 Bhookha Panda - Choose Your Meals</h2>
+    <div class="container" id="mealContainer"></div>
+
+    <button class="order-btn" onclick="placeOrder()">🛒 Place Order</button>
+    <div class="message" id="messageBox"></div>
+
+    <script>
+        const apiUrl = "http://localhost:3000/api/products";
+        const orderUrl = "http://localhost:3000/api/orders";
+        const container = document.getElementById("mealContainer");
+        const messageBox = document.getElementById("messageBox");
+        const selectedMeals = new Map();
+
+        async function fetchMeals() {
+            try {
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+
+                data.forEach((meal) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+            <span class="category-tag">${meal.categoryId.name}</span>
+            <input type="checkbox" class="checkbox" onchange="toggleSelect('${meal._id}', ${meal.price})">
+            <img src="${meal.images[0]}" alt="${meal.name}">
+            <div class="card-body">
+              <h3>${meal.name}</h3>
+              <p>${meal.description}</p>
+              <p class="price">₹${meal.price}</p>
+            </div>
+          `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Failed to load:", err);
+            }
+        }
+
+        function toggleSelect(id, price) {
+            if (selectedMeals.has(id)) {
+                selectedMeals.delete(id);
+            } else {
+                selectedMeals.set(id, price);
+            }
+            console.log("Selected:", [...selectedMeals.entries()]);
+        }
+
+        async function placeOrder() {
+            if (selectedMeals.size === 0) {
+                messageBox.textContent = "⚠️ Please select at least one meal.";
+                messageBox.style.color = "red";
+                return;
+            }
+
+            const productIds = [...selectedMeals.keys()];
+            const totalPrice = [...selectedMeals.values()].reduce((a, b) => a + b, 0);
+
+            const orderPayload = {
+                userId: "guest_user_123", // you can replace with real user later
+                productIds,
+                totalPrice,
+            };
+
+            try {
+                const res = await fetch(orderUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderPayload),
+                });
+
+                if (res.ok) {
+                    messageBox.textContent = "✅ Order placed successfully!";
+                    messageBox.style.color = "green";
+                    selectedMeals.clear();
+                    document.querySelectorAll(".checkbox").forEach(c => c.checked = false);
+                } else {
+                    messageBox.textContent = "❌ Failed to place order.";
+                    messageBox.style.color = "red";
+                }
+            } catch (err) {
+                console.error(err);
+                messageBox.textContent = "⚠️ Error connecting to server.";
+                messageBox.style.color = "red";
+            }
+        }
+
+        fetchMeals();
+    </script>
+</body>
+
+</html>

@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const personalSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Male' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    name: { type: String, required: true },
+    gender: { type: String, required: true },
     profileImage: { type: String }
 });
 
-module.exports = mongoose.model('PersonalDetail', personalSchema);
+const PersonalDetail = mongoose.model('PersonalDetail', personalSchema);
+module.exports = { PersonalDetail };

@@ -1,49 +1,27 @@
-const express = require('express');
-const router = express.Router();
-const { authenticateUser } = require('../../middleware/deliveryBoyMidilwhere/authmidilwhere');
-const Location = require('../../models/deliveryBoy/locationSchema');
+const express = require("express");
+const {
+    createLocation,
+    getAllLocations,
+    getLocationById,
+    updateLocation,
+    deleteLocation
+} = require("../../controllers/authDeliveryBoy.js/locationController");
 
-// ✅ Update Location (Live Update)
-router.post('/', authenticateUser, async (req, res) => {
-    try {
-        const { latitude, longitude, address } = req.body;
-        let location = await Location.findOne({ user: req.user.id });
+const LocationRouter = express.Router();
 
-        if (location) {
-            location.latitude = latitude;
-            location.longitude = longitude;
-            location.address = address;
-        } else {
-            location = new Location({ user: req.user.id, latitude, longitude, address });
-        }
+// Create a new location
+LocationRouter.post('/locations', createLocation);
 
-        await location.save();
-        res.status(200).json({ message: "Location updated", location });
-    } catch (error) {
-        res.status(500).json({ message: "Error updating location", error });
-    }
-});
+// Get all locations
+LocationRouter.get('/locations', getAllLocations);
 
-// ✅ Get Location
-router.get('/', authenticateUser, async (req, res) => {
-    try {
-        const location = await Location.findOne({ user: req.user.id }).populate('user', 'email phone');
-        if (!location) return res.status(404).json({ message: "Location not found" });
+// Get a location by ID
+LocationRouter.get('/locations/:id', getLocationById);
 
-        res.status(200).json({ location });
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching location", error });
-    }
-});
+// Update a location by ID
+LocationRouter.put('/locations/:id', updateLocation);
 
-// ✅ Delete Location
-router.delete('/', authenticateUser, async (req, res) => {
-    try {
-        await Location.findOneAndDelete({ user: req.user.id });
-        res.status(200).json({ message: "Location deleted" });
-    } catch (error) {
-        res.status(500).json({ message: "Error deleting location", error });
-    }
-});
+// Delete a location by ID
+LocationRouter.delete('/locations/:id', deleteLocation);
 
-module.exports = router;    
+module.exports = { LocationRouter };

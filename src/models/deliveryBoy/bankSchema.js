@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const bankSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    accountNumber: { type: String },
-    ifscCode: { type: String },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // ✅ Ensure ref is correct
+    accountNumber: { type: String, required: true },
+    ifscCode: { type: String, required: true },
     upiId: { type: String }
 });
 
-module.exports = mongoose.model('BankDetail', bankSchema);
+const BankDetail = mongoose.model('BankDetail', bankSchema);
+module.exports = BankDetail;
